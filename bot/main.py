@@ -33,6 +33,15 @@ dp = Dispatcher()
 # /retell week      — за неделю
 # /retell @username — сообщения конкретного пользователя за сутки
 
+@dp.message_handler(commands="how")
+async def send_how(message: Message):
+    await message.reply("Использование:\n"
+                    "/retell 1 — за 1 час\n"
+                    "/retell day — за сутки\n"
+                    "/retell week — за неделю\n"
+                    "/retell @username — что писал человек за сутки\n"
+                    "/tldr (в ответ на гс) - пересказ голосового")
+
 @dp.message(Command("retell"))
 async def on_retell(msg: Message) -> None:
     logger.info(f"[CMD /retell] chat_id={msg.chat.id} text={msg.text!r}")
