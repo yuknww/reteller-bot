@@ -33,15 +33,6 @@ dp = Dispatcher()
 # /retell week      — за неделю
 # /retell @username — сообщения конкретного пользователя за сутки
 
-@dp.message(Command("how"))
-async def send_how(message: Message):
-    await message.reply("Использование:\n"
-                    "/retell 1 — за 1 час\n"
-                    "/retell day — за сутки\n"
-                    "/retell week — за неделю\n"
-                    "/retell @username — что писал человек за сутки\n"
-                    "/tldr (в ответ на гс) - пересказ голосового")
-
 @dp.message(Command("retell"))
 async def on_retell(msg: Message) -> None:
     logger.info(f"[CMD /retell] chat_id={msg.chat.id} text={msg.text!r}")
@@ -65,7 +56,7 @@ async def on_retell(msg: Message) -> None:
         summary = await loop.run_in_executor(
             None, summarizer.summarize_for_user, user_messages, arg
         )
-        await wait.edit_text(f"👤 *{label}:*\n\n{summary}", parse_mode="Markdown")
+        await wait.edit_text(f"👤 <b>{label}:</b>\n\n{summary}", parse_mode="HTML")
         return
 
     arg = arg.lower()
@@ -96,7 +87,7 @@ async def on_retell(msg: Message) -> None:
     wait = await msg.reply(f"⏳ Собираю пересказ {label}...")
     loop = asyncio.get_event_loop()
     summary = await loop.run_in_executor(None, summarizer.summarize, messages)
-    await wait.edit_text(f"📋 *Пересказ {label}:*\n\n{summary}", parse_mode="Markdown")
+    await wait.edit_text(f"📋 <b>Пересказ {label}:</b>\n\n{summary}", parse_mode="HTML")
 
 
 # ── /tl;dr — краткий пересказ голосового ────────────────────────────────────
@@ -125,7 +116,7 @@ async def on_tldr(msg: Message) -> None:
         text = await loop.run_in_executor(None, transcriber.transcribe_audio, audio_bytes, ".ogg")
         author = replied.from_user.full_name if replied.from_user else "Кто-то"
         summary = await loop.run_in_executor(None, summarizer.summarize_voice, text, author)
-        await wait.edit_text(f"🎤 _{summary}_", parse_mode="Markdown")
+        await wait.edit_text(f"🎤 {summary}")
         return
 
     # Если отвечаем на текст — просто пересказываем текст
@@ -206,11 +197,11 @@ async def daily_summary() -> None:
         loop.run_in_executor(None, summarizer.pick_quote_of_day, messages),
     )
 
-    text = f"🌅 *Доброе утро! Вот что было в чате за вчера:*\n\n{summary}"
+    text = f"🌅 <b>Доброе утро! Вот что было в чате за вчера:</b>\n\n{summary}"
     if quote and "недоступны" not in quote:
-        text += f"\n\n💬 *Цитата дня:*\n_{quote}_"
+        text += f"\n\n💬 <b>Цитата дня:</b>\n{quote}"
 
-    await bot.send_message(CHAT_ID, text, parse_mode="Markdown")
+    await bot.send_message(CHAT_ID, text, parse_mode="HTML")
 
 
 # ── Запуск ───────────────────────────────────────────────────────────────────
