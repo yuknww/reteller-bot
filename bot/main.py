@@ -33,7 +33,7 @@ dp = Dispatcher()
 # /retell week      — за неделю
 # /retell @username — сообщения конкретного пользователя за сутки
 
-@dp.message_handler(commands="how")
+@dp.message(commands="how")
 async def send_how(message: Message):
     await message.reply("Использование:\n"
                     "/retell 1 — за 1 час\n"
