@@ -55,6 +55,14 @@ def save_message(
     get_conn().commit()
 
 
+def get_last_n_messages(n: int) -> list[dict]:
+    rows = get_conn().execute(
+        "SELECT * FROM (SELECT * FROM messages ORDER BY timestamp DESC LIMIT ?) ORDER BY timestamp ASC",
+        (n,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 def get_messages_since(since: datetime) -> list[dict]:
     ts = since.timestamp()
     rows = get_conn().execute(
