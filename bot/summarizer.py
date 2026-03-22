@@ -138,6 +138,25 @@ def summarize_voice(voice_text: str, author: str) -> str:
     return _run_with_fallback(prompt, system=system, temperature=0.2)
 
 
+def ask_assistant(question: str) -> str:
+    """Ответ дружелюбного ассистента на вопрос из чата."""
+    system = (
+        "Ты дружелюбный помощник в Telegram-чате. Отвечай кратко и по делу. "
+        "Без пространных вступлений и ненужных оговорок."
+    )
+    return _run_with_fallback(question, system=system, temperature=0.7)
+
+
+def translate_text(text: str, target_lang: str) -> str:
+    """Перевод текста на указанный язык."""
+    prompt = f"Переведи текст на язык: {target_lang}\n\n{text}"
+    system = (
+        "Ты профессиональный переводчик. Возвращай только перевод — "
+        "без пояснений, вступлений и кавычек вокруг всего текста."
+    )
+    return _run_with_fallback(prompt, system=system, temperature=0.1)
+
+
 def pick_quote_of_day(messages: List[dict]) -> str:
     """Выбирает самую смешную/абсурдную цитату дня."""
     if not messages:
