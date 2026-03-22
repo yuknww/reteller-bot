@@ -67,6 +67,7 @@ async def _answer(msg: Message, question: str, context_count: int) -> None:
     loop = asyncio.get_running_loop()
 
     messages = await loop.run_in_executor(None, get_last_n_messages, context_count)
+    logger.info(f"[CHAT] loaded {len(messages)} messages from db")
     answer = await loop.run_in_executor(None, summarizer.ask_with_context, question, messages)
 
     if len(answer) > 300:
