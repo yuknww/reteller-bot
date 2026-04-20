@@ -53,3 +53,33 @@ async def on_voice(msg: Message, bot: Bot) -> None:
         timestamp=msg.date,
         is_voice=True,
     )
+
+
+@router.message(F.video_note)
+async def on_video_note(msg: Message, bot: Bot) -> None:
+    if not msg.video_note:
+        return
+    name = msg.from_user.full_name if msg.from_user else "?"
+    logger.info(f"[VIDEO_NOTE] from {name!r}")
+
+    try:
+        file = await bot.get_file(msg.video_note.file_id)
+        buf = await bot.download_file(file.file_path)
+        audio_bytes = buf.read()
+    except Exception:
+        logger.exception("Failed to download video note")
+        return
+
+    loop = asyncio.get_running_loop()
+    text = await loop.run_in_executor(None, transcriber.transcribe_audio, audio_bytes, ".mp4")
+    logger.info(f"[VIDEO_NOTE] transcribed: {text!r}")
+
+    db.save_message(
+        message_id=msg.message_id,
+        user_id=msg.from_user.id if msg.from_user else None,
+        username=msg.from_user.username if msg.from_user else None,
+        full_name=msg.from_user.full_name if msg.from_user else None,
+        text=text,
+        timestamp=msg.date,
+        is_voice=True,
+    )
