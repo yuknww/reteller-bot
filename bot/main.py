@@ -42,14 +42,9 @@ async def daily_summary() -> None:
     logger.info(f"[DAILY] running, {len(messages)} messages found")
 
     loop = asyncio.get_running_loop()
-    summary, quote = await asyncio.gather(
-        loop.run_in_executor(None, summarizer.summarize, messages),
-        loop.run_in_executor(None, summarizer.pick_quote_of_day, messages),
-    )
+    summary = await loop.run_in_executor(None, summarizer.summarize, messages)
 
     text = f"🌅 <b>Доброе утро! Вот что было в чате за вчера:</b>\n\n{summary}"
-    if quote and "недоступны" not in quote:
-        text += f"\n\n💬 <b>Цитата дня:</b>\n{quote}"
 
     await bot.send_message(CHAT_ID, text, parse_mode="HTML")
 
